@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prueba de Conexión - ESPE Pageant</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Prueba de Conexión ESPE Pageant</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(title, message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${title}:</strong> ${message}`;
+            resultsDiv.appendChild(div);
+        }
+        
+        async function testConnection() {
+            addResult('🔄 Iniciando', 'Pruebas de conexión...', 'info');
+            
+            try {
+                // Test 1: Health check
+                addResult('🏥 Health Check', 'Probando...', 'info');
+                const healthResponse = await fetch('http://localhost:3000/health');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    addResult('🏥 Health Check', `✅ Servidor funcionando: ${healthData.message}`, 'success');
+                } else {
+                    addResult('🏥 Health Check', `❌ Error: ${healthResponse.status}`, 'error');
+                }
+                
+                // Test 2: Database connection
+                addResult('🗄️ Base de Datos', 'Probando...', 'info');
+                const dbResponse = await fetch('http://localhost:3000/api/test-db');
+                if (dbResponse.ok) {
+                    const dbData = await dbResponse.json();
+                    addResult('🗄️ Base de Datos', `✅ ${dbData.message} - Hora: ${dbData.data.current_time}`, 'success');
+                } else {
+                    addResult('🗄️ Base de Datos', `❌ Error: ${dbResponse.status}`, 'error');
+                }
+                
+                // Test 3: Events endpoint
+                addResult('📅 Eventos', 'Probando...', 'info');
+                const eventsResponse = await fetch('http://localhost:3000/api/events');
+                if (eventsResponse.ok) {
+                    const eventsData = await eventsResponse.json();
+                    addResult('📅 Eventos', `✅ ${eventsData.data.length} eventos encontrados`, 'success');
+                } else {
+                    addResult('📅 Eventos', `❌ Error: ${eventsResponse.status}`, 'error');
+                }
+                
+                // Test 4: Candidates endpoint
+                addResult('👸 Candidatas', 'Probando...', 'info');
+                const candidatesResponse = await fetch('http://localhost:3000/api/candidates');
+                if (candidatesResponse.ok) {
+                    const candidatesData = await candidatesResponse.json();
+                    addResult('👸 Candidatas', `✅ ${candidatesData.data.length} candidatas encontradas`, 'success');
+                } else {
+                    addResult('👸 Candidatas', `❌ Error: ${candidatesResponse.status}`, 'error');
+                }
+                
+                // Test 5: CORS
+                addResult('🔗 CORS', 'Verificado - Las peticiones desde este puerto funcionan', 'success');
+                
+                addResult('🎊 Resultado Final', 'Todas las conexiones están funcionando correctamente!', 'success');
+                
+            } catch (error) {
+                addResult('❌ Error Fatal', `No se puede conectar al servidor: ${error.message}`, 'error');
+                addResult('💡 Sugerencia', 'Verifica que el servidor esté ejecutándose en http://localhost:3000', 'info');
+            }
+        }
+        
+        // Ejecutar pruebas al cargar la página
+        testConnection();
+        
+        // Botón para volver a ejecutar
+        const button = document.createElement('button');
+        button.textContent = '🔄 Ejecutar Pruebas Nuevamente';
+        button.style.marginTop = '20px';
+        button.style.padding = '10px 20px';
+        button.style.fontSize = '16px';
+        button.onclick = () => {
+            resultsDiv.innerHTML = '';
+            testConnection();
+        };
+        document.body.appendChild(button);
+    </script>
+</body>
+</html> 

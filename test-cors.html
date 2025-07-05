@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CORS - ESPE Pageant</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test CORS - ESPE Pageant</h1>
+    <p>Probando la comunicación entre cliente y servidor...</p>
+    
+    <button onclick="testHealth()">Test Health Check</button>
+    <button onclick="testCandidates()">Test Candidates</button>
+    <button onclick="testEvents()">Test Events</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(message, isSuccess = true) {
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(div);
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                addResult(`✅ Health Check: ${data.message}`, true);
+            } catch (error) {
+                addResult(`❌ Health Check Error: ${error.message}`, false);
+            }
+        }
+
+        async function testCandidates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/candidates`);
+                const data = await response.json();
+                if (data.success) {
+                    addResult(`✅ Candidates: ${data.data.length} candidatas encontradas`, true);
+                } else {
+                    addResult(`❌ Candidates Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ Candidates Error: ${error.message}`, false);
+            }
+        }
+
+        async function testEvents() {
+            try {
+                const response = await fetch(`${API_BASE}/api/events`);
+                const data = await response.json();
+                if (data.success) {
+                    addResult(`✅ Events: ${data.data.length} eventos encontrados`, true);
+                } else {
+                    addResult(`❌ Events Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ Events Error: ${error.message}`, false);
+            }
+        }
+
+        // Test automático al cargar
+        window.onload = function() {
+            addResult(`🚀 Iniciando tests desde puerto ${window.location.port}...`);
+            setTimeout(() => testHealth(), 500);
+            setTimeout(() => testCandidates(), 1000);
+            setTimeout(() => testEvents(), 1500);
+        };
+    </script>
+</body>
+</html> 
